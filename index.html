@@ -22,19 +22,28 @@
 
         spritesheet = new Image();
         spritesheet.src = 'spritesheet.png';
+        spritesheet.onload = showTitle;
 
-        document.querySelector("html").addEventListener("keydown", function (e) {
-            if (e.key == "q") player.tryMove(-1, -1);
-            if (e.key == "w") player.tryMove(0, -1);
-            if (e.key == "e") player.tryMove(1, -1);
-            if (e.key == "d") player.tryMove(1, 0);
-            if (e.key == "c") player.tryMove(1, 1);
-            if (e.key == "s") player.tryMove(0, 1);
-            if (e.key == "x") player.tryMove(0, 1);
-            if (e.key == "z") player.tryMove(-1, 1);
-            if (e.key == "a") player.tryMove(-1, 0);
+        gameState = "loading";
 
-        });
+        startingHp = 3;
+        numLevels = 6;    
+
+        document.querySelector("html").onkeypress = function (e) {
+
+            if (gameState == "title") {
+                startGame();
+            } else if (gameState == "dead") {
+                showTitle();
+            } else if (gameState == "running") {
+                if (e.key == "w") player.tryMove(0, -1);
+                if (e.key == "s") player.tryMove(0, 1);
+                if (e.key == "a") player.tryMove(-1, 0);
+                if (e.key == "d") player.tryMove(1, 0);
+                if (e.key == ".") tick();
+            }
+
+        }; //movement
 
         function drawSprite(sprite, x, y) {
             ctx.drawImage(
@@ -48,15 +57,12 @@
                 tileSize,
                 tileSize
             );
-        }
+        } //drawing everything
 
         setInterval(draw, 15);
 
         setupCanvas();
 
-        generateLevel();
-
-        player = new Player(randomPassableTile());
     </script>
 </body>
 </html>

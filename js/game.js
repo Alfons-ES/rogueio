@@ -5,9 +5,9 @@ function setupCanvas() {
     canvas.width = tileSize * (numTiles + uiWidth);
     canvas.height = tileSize * numTiles;
     canvas.style.width = canvas.width + 'px';
-    canvas.style.height = canvas.height + 'px';
+    canvas.style.height = canvas.height + 'px'; 
     ctx.imageSmoothingEnabled = false;
-}
+} // 
 function drawSprite(sprite, x, y) {
     ctx.drawImage(
         spritesheet,
@@ -20,21 +20,38 @@ function drawSprite(sprite, x, y) {
         tileSize,
         tileSize
     );
+} //
+
+function drawText(text, size, centered, textY, color) {
+    ctx.fillStyle = color;
+    ctx.font = size + "px monospace";
+    let textX;
+    if (centered) {
+        textX = (canvas.width - ctx.measureText(text).width) / 2;
+    } else {
+        textX = canvas.width - uiWidth * tileSize + 25;
+    }
+
+    ctx.fillText(text, textX, textY);
 }
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (gameState == "running" || gameState == "dead") {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < numTiles; i++) {
-        for (let j = 0; j < numTiles; j++) {
-            getTile(i, j).draw();
+        for (let i = 0; i < numTiles; i++) {
+            for (let j = 0; j < numTiles; j++) {
+                getTile(i, j).draw();
+            }
         }
-    }
 
-    for (let i = 0; i < monsters.length; i++) {
-        monsters[i].draw();
+        for (let i = 0; i < monsters.length; i++) {
+            monsters[i].draw();
+        }
+        player.draw();
+
+        drawText("Level: " + level, 30, false, 40, "violet");
     }
-    player.draw();
 }
 
 function tick() {
@@ -45,4 +62,43 @@ function tick() {
             monsters.splice(k, 1);
         }
     }
+
+    if (player.dead) {
+        gameState = "dead";
+    }
+
+    spawnCounter--;  //when spawnRate amount of ticks have passed we spawn a monster, 15 than 14, than 13....
+    if (spawnCounter <= 0) {
+        spawnMonster();
+        spawnCounter = spawnRate;
+        spawnRate--;
+    }
+}
+function showTitle() {
+    ctx.fillStyle = 'rgba(0,0,0,.75)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    gameState = "title";
+
+    drawText("Rogue.io", 70, true, canvas.height / 2 - 110, 'goldenrod');
+    drawText("Press any button to start.", 14, true, canvas.height / 2, 'white');
+}
+
+function startGame() {
+    level = 1;
+    startLevel(startingHp);
+
+    gameState = "running";
+}
+
+function startLevel(playerHp) {
+    generateLevel();
+
+    player = new Player(randomPassableTile());
+    player.hp = playerHp;
+
+    spawnRate = 15;
+    spawnCounter = spawnRate;
+
+    randomPassableTile().replace(Exit);
 }

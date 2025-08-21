@@ -3,6 +3,7 @@ class Monster {
         this.move(tile);
         this.sprite = sprite;
         this.hp = hp;
+        this.teleportCounter = 2;
     }
 
     heal(damage) {
@@ -10,7 +11,8 @@ class Monster {
     }
 
     update() {
-        if (this.stunned) {
+        this.teleportCounter--;
+        if (this.stunned || this.teleportCounter > 0) {  
             this.stunned = false;
             return;
         }
@@ -19,25 +21,32 @@ class Monster {
     }
 
     doStuff() {
-        let neighbors = this.tile.getAdjacentPassableNeighbors();
+        let neighbors = this.tile.getAdjacentPassableNeighbors(); // Get all adjacent passable tiles
 
-        neighbors = neighbors.filter(t => !t.monster || t.monster.isPlayer);
+        neighbors = neighbors.filter(t => !t.monster || t.monster.isPlayer); // Filter out neighbors that are occupied by monsters that are not the player
 
         if (neighbors.length) {
             neighbors.sort((a, b) => a.dist(player.tile) - b.dist(player.tile));
             let newTile = neighbors[0];
             this.tryMove(newTile.x - this.tile.x, newTile.y - this.tile.y);
-        }
-    }
+        } // If no neighbors, do nothing
+    } // Do stuff like move or attack
 
     
 
     draw() {
-        drawSprite(this.sprite, this.tile.x, this.tile.y);
-        this.drawHP();
+        if (this.teleportCounter > 0) {
+            drawSprite(10, this.tile.x, this.tile.y);
+        } else {
+
+            drawSprite(this.sprite, this.tile.x, this.tile.y);
+            this.drawHp();
+
+        }
+
     }
 
-    drawHP() {
+    drawHp() {
         for (let i = 0; i < this.hp; i++) {
             drawSprite(
                 9,
@@ -61,20 +70,20 @@ class Monster {
             }
             return true;
         }
-    }
+    } // Try to move in the specified direction (dx, dy) and return true if successful
 
     hit(damage) {
         this.hp -= damage;
         if (this.hp <= 0) {
             this.die();
         }
-    }
+    } // Hit with the specified damage
 
     die() {
         this.dead = true;
         this.tile.monster = null;
         this.sprite = 1;
-    }
+    } // Mark the monster as dead and remove it from its tile, or if player, make grave
 
     move(tile) {
         if (this.tile) {
@@ -82,7 +91,8 @@ class Monster {
         }
         this.tile = tile;
         tile.monster = this;
-    }
+        tile.stepOn(this);     
+    } // Move to the specified tile and update the tile's monster reference
 
 }
 
@@ -91,6 +101,7 @@ class Player extends Monster {
     constructor(tile) {
         super(tile, 0, 3);
         this.isPlayer = true;
+        this.teleportCounter = 0;
     }
 
     tryMove(dx, dy) {

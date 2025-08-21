@@ -6,10 +6,10 @@ function tryTo(description, callback) {
         }
     }
     throw 'Timeout while trying to ' + description;
-}
+} //randomizer
 function randomRange(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+} 
 
 function shuffle(arr) {
     let temp, r;
@@ -20,4 +20,4 @@ function shuffle(arr) {
         arr[r] = temp;
     }
     return arr;
-}
+} //shuffler, 1-2-3-4-5 -> 2-5-1-3-4
