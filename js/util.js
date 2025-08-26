@@ -21,3 +21,16 @@ function shuffle(arr) {
     }
     return arr;
 } //shuffler, 1-2-3-4-5 -> 2-5-1-3-4
+
+
+function rightPad(textArray) {
+    let finalText = "";
+    textArray.forEach(text => {
+        text += "";
+        for (let i = text.length; i < 10; i++) {
+            text += " ";
+        }
+        finalText += text;
+    });
+    return finalText;
+}

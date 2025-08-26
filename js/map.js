@@ -5,6 +5,10 @@ function generateLevel() {
     });
 
     generateMonsters();
+
+    for (let i = 0; i < 3; i++) {
+        randomPassableTile().treasure = true;
+    }
 } // Generate a new level with a map and monsters
 
 function generateTiles() {
